@@ -1,0 +1,10 @@
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+.DS_Store
+.env
+cypress/videos
+cypress/screenshots
+package-lock.json
+.cache
