@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CypressSharedWebpackPlugin } = require('./cypress-shared-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -9,7 +10,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html',
-            title: 'foo bar baz'
         }),
+        new CypressSharedWebpackPlugin(),
     ],
 };

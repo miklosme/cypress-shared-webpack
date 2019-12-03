@@ -22,21 +22,6 @@ const devServer = new WebpackDevServer(compiler, {
     watchOptions: {
         ignored: /node_modules/,
     },
-    // before(app, server, compiler) {
-    //     app.get('/cypress-specs/:filepath(*)', (req, res) => {
-    //         const requestedFileName = `cypress/${req.params.filepath}`;
-
-    //         const file = Object.entries(compiler.cypress).find(([fileName]) => {
-    //             return fileName.endsWith(requestedFileName);
-    //         });
-
-    //         if (file) {
-    //             res.type('application/javascript; charset=UTF-8').send(file[1]);
-    //         } else {
-    //             res.status(404).send('Not found');
-    //         }
-    //     });
-    // },
 });
 
 console.log('Dev server started...');
@@ -63,7 +48,7 @@ console.log('Dev server started...');
 
     cypress.open({
         config: {
-            baseUrl: 'http://localhost:8877/',
+            baseUrl: 'http://localhost:8877',
         },
         env: process.env,
     });

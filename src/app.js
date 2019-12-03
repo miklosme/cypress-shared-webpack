@@ -1,1 +1,1 @@
-document.writeln('okkkk')
+document.writeln('{"x":"foo"}');
