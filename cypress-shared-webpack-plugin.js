@@ -72,6 +72,15 @@ class CypressSharedWebpackPlugin {
 
         ipc.server.on('onFileRequest', async (data, socket) => {
             try {
+                if (data.shouldWatch) {
+                    this.rerunMap[data.filePath] = () => {
+                        ipc.server.emit(socket, 'onRerun', {
+                            id: 'CypressSharedWebpackServer',
+                            filePath: data.filePath,
+                        });
+                    };
+                }
+
                 if (!this.assets[data.filePath]) {
                     await this.compileCypressFile(compiler, data.filePath);
                 }
@@ -83,8 +92,7 @@ class CypressSharedWebpackPlugin {
                 const asset = this.assets[data.filePath];
 
                 if (!asset) {
-                    throw Error('whut mate asset cannot be found');
-                    // throw Error(`[CypressSharedWebpackPlugin] requested asset could not be found: ${data.filePath}`);
+                    throw Error(`[CypressSharedWebpackPlugin] compiled asset cannot be found`);
                 }
 
                 await new Promise((resolve, reject) => {
@@ -103,15 +111,6 @@ class CypressSharedWebpackPlugin {
                     requestId: data.requestId,
                     transpiledPath: data.outputPath,
                 });
-
-                if (data.shouldWatch) {
-                    this.rerunMap[data.filePath] = () => {
-                        ipc.server.emit(socket, 'onRerun', {
-                            id: 'CypressSharedWebpackServer',
-                            filePath: data.filePath,
-                        });
-                    };
-                }
             } catch (error) {
                 ipc.server.emit(socket, 'onFileResponse', {
                     id: 'CypressSharedWebpackServer',
@@ -135,6 +134,7 @@ class CypressSharedWebpackPlugin {
         let firstMakeHook = true;
         compiler.hooks.make.tapAsync('CypressSharedWebpackPlugin', async (compilation, callback) => {
             if (!firstMakeHook) {
+                callback();
                 return;
             }
 
@@ -175,8 +175,7 @@ class CypressSharedWebpackPlugin {
         });
     }
     async compileCypressFile(compiler, entry) {
-        console.log('compileCypressFile entry:', entry);
-
+        const firstRun = !this.assets[entry];
         delete this.assets[entry];
 
         const compilation = compiler.createCompilation();
@@ -199,11 +198,12 @@ class CypressSharedWebpackPlugin {
                     return;
                 }
 
-                const [{ name: hashedName, source }] = childCompilation.getAssets();
-                this.assets[hashedName] = source;
+                const [{ source }] = childCompilation.getAssets();
+                this.assets[entry] = source;
 
-                console.log('compileCypressFile entry rebuilded:', entry);
-                if (this.rerunMap[entry]) {
+                console.log('[CypressSharedWebpackPlugin] file added to assets:', entry, !!this.rerunMap[entry]);
+
+                if (!firstRun && this.rerunMap[entry]) {
                     this.rerunMap[entry].call(null);
                 }
 

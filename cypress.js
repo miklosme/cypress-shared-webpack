@@ -9,10 +9,17 @@ compiler.hooks.invalid.tap('invalid', () => {
     console.log('Compiling...');
 });
 
+let firstCompile = true;
+
 compiler.hooks.done.tap('done', stats => {
     const messages = stats.toJson({ all: false, warnings: true, errors: true });
 
-    console.log('Compiled', messages.errors.length ? `with ${messages.errors.length} errors` : '');
+    if (firstCompile) {
+        firstCompile = false;
+        console.log('First compilation is done.');
+        return;
+    }
+    console.log('Compiled.');
 });
 
 const devServer = new WebpackDevServer(compiler, {
@@ -46,10 +53,12 @@ console.log('Dev server started...');
         });
     });
 
-    cypress.open({
-        config: {
-            baseUrl: 'http://localhost:8877',
-        },
-        env: process.env,
-    });
+    if (process.env.NODE_ENV !== 'test') {
+        cypress.open({
+            config: {
+                baseUrl: 'http://localhost:8877',
+            },
+            env: process.env,
+        });
+    }
 })();
