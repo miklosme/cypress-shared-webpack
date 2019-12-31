@@ -2,7 +2,7 @@
   "name": "cypress-shared-webpack",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "cypress-shared-webpack.js",
   "scripts": {
     "start": "node cypress.js",
     "test": "jest"

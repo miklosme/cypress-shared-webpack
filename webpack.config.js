@@ -1,5 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { CypressSharedWebpackPlugin } = require('./cypress-shared-webpack-plugin');
+const { CypressSharedWebpackPlugin } = require('./cypress-shared-webpack');
 
 module.exports = {
     mode: 'development',

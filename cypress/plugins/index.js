@@ -13,7 +13,7 @@
 
 // const watch = require('./watch-preprocessor');
 
-const { onPreprocess } = require('../../cypress-shared-webpack-plugin');
+const { onPreprocess } = require('../../cypress-shared-webpack');
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits

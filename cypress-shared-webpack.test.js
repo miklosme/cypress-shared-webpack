@@ -1,5 +1,5 @@
 const { spawn } = require('child_process');
-const { onPreprocess } = require('./cypress-shared-webpack-plugin');
+const { onPreprocess } = require('./cypress-shared-webpack');
 const path = require('path');
 const os = require('os');
 const fs = require('fs').promises;

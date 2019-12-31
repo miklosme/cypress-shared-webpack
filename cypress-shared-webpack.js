@@ -220,6 +220,5 @@ class CypressSharedWebpackPlugin {
     }
 }
 
-module.exports = CypressSharedWebpackPlugin;
 module.exports.CypressSharedWebpackPlugin = CypressSharedWebpackPlugin;
 module.exports.onPreprocess = onPreprocess;
