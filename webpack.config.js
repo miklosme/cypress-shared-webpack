@@ -3,13 +3,13 @@ const { CypressSharedWebpackPlugin } = require('./cypress-shared-webpack');
 
 module.exports = {
     mode: 'development',
-    entry: './src/app.js',
+    entry: './test-app/app.js',
     output: {
         filename: 'bundle.js',
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/index.html',
+            template: './test-app/index.html',
         }),
         new CypressSharedWebpackPlugin(),
     ],

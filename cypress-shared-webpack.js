@@ -96,7 +96,7 @@ class CypressSharedWebpackPlugin {
                 }
 
                 await new Promise((resolve, reject) => {
-                    fs.writeFile(data.outputPath, asset.source(), error => {
+                    fs.writeFile(data.outputPath, asset, error => {
                         if (error) {
                             reject(error);
                             return;
@@ -199,9 +199,9 @@ class CypressSharedWebpackPlugin {
                 }
 
                 const [{ source }] = childCompilation.getAssets();
-                this.assets[entry] = source;
+                this.assets[entry] = source.source();
 
-                console.log('[CypressSharedWebpackPlugin] file added to assets:', entry, !!this.rerunMap[entry]);
+                console.log('[CypressSharedWebpackPlugin] file added to assets:', entry);
 
                 if (!firstRun && this.rerunMap[entry]) {
                     this.rerunMap[entry].call(null);

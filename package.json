@@ -7,8 +7,8 @@
     "start": "node cypress.js",
     "test": "jest"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Miklos Megyes <m.miklos05+npm@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "jest-changed-files": "^24.9.0",
     "node-ipc": "^9.1.1"
