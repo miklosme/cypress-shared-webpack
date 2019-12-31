@@ -3,6 +3,7 @@ const { getChangedFilesForRoots } = require('jest-changed-files');
 const path = require('path');
 const ipc = require('node-ipc');
 const fs = require('fs');
+const debug = require('debug')('cypress:shared-webpack');
 
 function onPreprocess() {
     ipc.config.id = 'CypressPreprocessor';
@@ -101,6 +102,8 @@ class CypressSharedWebpackPlugin {
                             reject(error);
                             return;
                         }
+
+                        debug('file written to:', data.outputPath);
 
                         resolve();
                     });
@@ -201,7 +204,7 @@ class CypressSharedWebpackPlugin {
                 const [{ source }] = childCompilation.getAssets();
                 this.assets[entry] = source.source();
 
-                console.log('[CypressSharedWebpackPlugin] file added to assets:', entry);
+                debug('file added to assets:', entry);
 
                 if (!firstRun && this.rerunMap[entry]) {
                     this.rerunMap[entry].call(null);
