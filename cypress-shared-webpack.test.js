@@ -4,8 +4,6 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs').promises;
 
-process.env.NODE_ENV = 'test';
-
 process.on('unhandledRejection', err => {
     throw err;
 });
@@ -27,7 +25,13 @@ async function addFile(filePath, content) {
 beforeAll(async () => {
     await addFile('./cypress/integration/changed-spec.js', '// empty');
 
-    webpackProcess = spawn('node', ['cypress.js']);
+    webpackProcess = spawn('node', ['cypress.js'], {
+        env: {
+            ...process.env,
+            NODE_ENV: 'test',
+            DEBUG: 'cypress:shared-webpack',
+        },
+    });
 
     await new Promise((resolve, reject) => {
         webpackProcess.stdout.on('data', data => {
@@ -77,7 +81,7 @@ function createFile(relativePath, options = {}) {
 }
 
 function fileAddedMessage(filePath) {
-    return `[CypressSharedWebpackPlugin] file added to assets: ${filePath}`;
+    return `cypress:shared-webpack file added to assets: ${filePath}`;
 }
 
 async function getContent(preprocessPromise) {
@@ -88,24 +92,24 @@ async function getContent(preprocessPromise) {
 
 test('transpiles the support file at startup', () => {
     const filePath = path.resolve('./cypress/support/index.js');
-    expect(webpackProcessStdout.includes(fileAddedMessage(filePath))).toBe(true);
+    expect(webpackProcessStdout).toEqual(expect.stringContaining(fileAddedMessage(filePath)));
 });
 
 test('transpiles (few) changed files at startup', () => {
     const filePath = path.resolve('./cypress/integration/changed-spec.js');
-    expect(webpackProcessStdout.includes(fileAddedMessage(filePath))).toBe(true);
+    expect(webpackProcessStdout).toEqual(expect.stringContaining(fileAddedMessage(filePath)));
 });
 
 test('transpiles a file on request', async () => {
     const filePath = path.resolve('./cypress/integration/bar-spec.js');
-    expect(webpackProcessStdout.includes(fileAddedMessage(filePath))).toBe(false);
+    expect(webpackProcessStdout).not.toEqual(expect.stringContaining(fileAddedMessage(filePath)));
 
     const file = createFile('./cypress/integration/bar-spec.js');
 
     const content = await getContent(preprocessor(file));
 
-    expect(content.includes("console.log('bar-spec-helper');")).toBe(true);
-    expect(content.includes("console.log('bar-spec');")).toBe(true);
+    expect(content).toEqual(expect.stringContaining("console.log('bar-spec-helper');"));
+    expect(content).toEqual(expect.stringContaining("console.log('bar-spec');"));
 });
 
 test('emits the file rerun event when a file is edited', async () => {
@@ -123,7 +127,7 @@ test('emits the file rerun event when a file is edited', async () => {
 
     const content = await getContent(preprocessor(file));
 
-    expect(content.includes("console.log('appended');")).toBe(true);
+    expect(content).toEqual(expect.stringContaining("console.log('appended');"));
 });
 
 test('supports filesnames with non-websafe characters', async () => {
@@ -133,7 +137,7 @@ test('supports filesnames with non-websafe characters', async () => {
 
     const content = await getContent(preprocessor(file));
 
-    expect(content.includes("console.log('empty');")).toBe(true);
+    expect(content).toEqual(expect.stringContaining("console.log('empty');"));
 });
 
 test('handles and recovers from compilation errors', async () => {
@@ -155,5 +159,5 @@ You may need an appropriate loader to handle this file type, currently no loader
 
     const content = await getContent(preprocessor(file));
 
-    expect(content.includes("console.log('valid');")).toBe(true);
+    expect(content).toEqual(expect.stringContaining("console.log('valid');"));
 });

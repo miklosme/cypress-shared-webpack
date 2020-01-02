@@ -4,6 +4,7 @@ const path = require('path');
 const ipc = require('node-ipc');
 const fs = require('fs');
 const debug = require('debug')('cypress:shared-webpack');
+debug.log = console.log.bind(console);
 
 function onPreprocess() {
     ipc.config.id = 'CypressPreprocessor';
@@ -205,6 +206,7 @@ class CypressSharedWebpackPlugin {
                 this.assets[entry] = source.source();
 
                 debug('file added to assets:', entry);
+                // console.log('file added to assets:', entry);
 
                 if (!firstRun && this.rerunMap[entry]) {
                     this.rerunMap[entry].call(null);

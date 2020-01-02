@@ -1,6 +1,6 @@
 {
-  "name": "cypress-shared-webpack----republished",
-  "version": "1.0.1",
+  "name": "cypress-shared-webpack",
+  "version": "1.0.0",
   "description": "",
   "main": "cypress-shared-webpack.js",
   "scripts": {
