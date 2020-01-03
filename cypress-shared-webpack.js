@@ -3,6 +3,7 @@ const { getChangedFilesForRoots } = require('jest-changed-files');
 const path = require('path');
 const ipc = require('node-ipc');
 const fs = require('fs');
+const chalk = require('chalk');
 const debug = require('debug')('cypress:shared-webpack');
 debug.log = console.log.bind(console);
 
@@ -50,9 +51,12 @@ function onPreprocess() {
         return new Promise((resolve, reject) => {
             requests[requestId] = data => {
                 if (data.error) {
-                    reject(new Error(data.error.message));
+                    debug('preprocessing file is failed:', chalk.red(filePath), data.error);
+                    reject(data.error);
                     return;
                 }
+
+                debug('preprocessing was successful for', chalk.green(data.transpiledPath));
 
                 resolve(data.transpiledPath);
             };
@@ -104,7 +108,7 @@ class CypressSharedWebpackPlugin {
                             return;
                         }
 
-                        debug('file written to:', data.outputPath);
+                        debug('file written to:', chalk.bold.green(data.outputPath));
 
                         resolve();
                     });
@@ -179,6 +183,7 @@ class CypressSharedWebpackPlugin {
         });
     }
     async compileCypressFile(compiler, entry) {
+        debug('running compilation for entry:', entry);
         const firstRun = !this.assets[entry];
         delete this.assets[entry];
 
@@ -198,6 +203,7 @@ class CypressSharedWebpackPlugin {
         return new Promise((resolve, reject) => {
             childCompiler.runAsChild((error, entries, childCompilation) => {
                 if (error) {
+                    debug('error happened when compiling file:', chalk.red(entry), error);
                     reject(error);
                     return;
                 }
@@ -214,9 +220,16 @@ class CypressSharedWebpackPlugin {
 
                 if (childCompilation.errors.length > 0) {
                     this.compilationError = childCompilation.errors[0];
+                    debug(
+                        'running compiler succeeded, but compilation error happened:',
+                        chalk.red(entry),
+                        this.compilationError,
+                    );
                     resolve();
                     return;
                 }
+
+                debug('compilation finished with no issues for entry:', entry);
 
                 this.compilationError = null;
                 resolve();
