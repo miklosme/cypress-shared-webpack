@@ -165,7 +165,7 @@ class CypressSharedWebpackPlugin {
                 // so when many files changed (because of moving around folders for example)
                 // webpack won't process too much files unneccesarily
                 // files missed here will be handled by the on-demand way when Cypress requests them
-                const limitedChangedFiles = changedFiles.slice(0, 10);
+                const limitedChangedFiles = changedFiles.slice(0, 3);
 
                 await Promise.all(
                     limitedChangedFiles.map(changedFile => this.compileCypressFile(compiler, changedFile)),
