@@ -218,7 +218,6 @@ class CypressSharedWebpackPlugin {
                 this.assets[entry] = source.source();
 
                 debug('file added to assets:', entry);
-                // console.log('file added to assets:', entry);
 
                 if (!firstRun && this.rerunMap[entry]) {
                     this.rerunMap[entry].call(null);
