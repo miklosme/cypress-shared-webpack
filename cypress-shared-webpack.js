@@ -151,15 +151,21 @@ class CypressSharedWebpackPlugin {
             try {
                 await this.compileCypressFile(compiler, path.resolve('./cypress/support/index.js'));
 
-                const { changedFiles } = await getChangedFilesForRoots([path.resolve('./cypress/integration')], {
-                    withAncestor: true,
-                });
+                const { changedFiles: changedFilesSet } = await getChangedFilesForRoots(
+                    [path.resolve('./cypress/integration')],
+                    {
+                        withAncestor: true,
+                    },
+                );
+
+                // remove deleted files
+                const changedFiles = Array.from(changedFilesSet).filter(file => fs.existsSync(file));
 
                 // only passing maximum of 10 files to the watched files set,
                 // so when many files changed (because of moving around folders for example)
                 // webpack won't process too much files unneccesarily
                 // files missed here will be handled by the on-demand way when Cypress requests them
-                const limitedChangedFiles = Array.from(changedFiles).slice(0, 10);
+                const limitedChangedFiles = changedFiles.slice(0, 10);
 
                 await Promise.all(
                     limitedChangedFiles.map(changedFile => this.compileCypressFile(compiler, changedFile)),
