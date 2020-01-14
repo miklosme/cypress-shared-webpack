@@ -9,7 +9,7 @@ debug.log = console.log.bind(console);
 
 function onPreprocess() {
     ipc.config.id = 'CypressPreprocessor';
-    ipc.config.silent = true;
+    ipc.config.silent = !(process.env.DEBUG || '').includes('cypress:shared-webpack');
 
     ipc.connectTo('CypressSharedWebpackServer');
 
@@ -72,7 +72,7 @@ class CypressSharedWebpackPlugin {
     }
     apply(compiler) {
         ipc.config.id = 'CypressSharedWebpackServer';
-        ipc.config.silent = true;
+        ipc.config.silent = !(process.env.DEBUG || '').includes('cypress:shared-webpack');
 
         ipc.serve();
 
