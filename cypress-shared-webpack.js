@@ -2,7 +2,7 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin');
 const { getChangedFilesForRoots } = require('jest-changed-files');
 const path = require('path');
 const ipc = require('node-ipc');
-const fs = require('fs');
+const { existsSync, promises: fs } = require('fs');
 const chalk = require('chalk');
 const debug = require('debug')('cypress:shared-webpack');
 debug.log = console.log.bind(console);
@@ -101,18 +101,9 @@ class CypressSharedWebpackPlugin {
                     throw Error(`[CypressSharedWebpackPlugin] compiled asset cannot be found`);
                 }
 
-                await new Promise((resolve, reject) => {
-                    fs.writeFile(data.outputPath, asset, error => {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
-
-                        debug('file written to:', chalk.bold.green(data.outputPath));
-
-                        resolve();
-                    });
-                });
+                await fs.mkdir(path.dirname(data.outputPath), { recursive: true });
+                await fs.writeFile(data.outputPath, asset);
+                debug('file is written to:', chalk.bold.green(data.outputPath));
 
                 ipc.server.emit(socket, 'onFileResponse', {
                     id: 'CypressSharedWebpackServer',
@@ -159,9 +150,9 @@ class CypressSharedWebpackPlugin {
                 );
 
                 // remove deleted files
-                const changedFiles = Array.from(changedFilesSet).filter(file => fs.existsSync(file));
+                const changedFiles = Array.from(changedFilesSet).filter(file => existsSync(file));
 
-                // only passing maximum of 10 files to the watched files set,
+                // only passing maximum of 3 files to the watched files set,
                 // so when many files changed (because of moving around folders for example)
                 // webpack won't process too much files unneccesarily
                 // files missed here will be handled by the on-demand way when Cypress requests them
